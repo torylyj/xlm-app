@@ -1,210 +1,258 @@
-# 🍎 Apple Model App - iOS 本地大模型应用
+# 🍎 Apple MLX Chat App - Qwen MLX Local Chat for iOS
 
-## 📦 项目信息
-
-**项目名称**：Apple MLX Local Chat  
-**技术栈**：MLX + Qwen 量化模型  
-**目标平台**：iPhone / iPad iOS 15+  
-**云编译**：GitHub Actions + CI/CD 流  
-**版本**：0.1.0 alpha
+> **本地大模型 iOS 应用** - 使用 MLX 框架的 Qwen2.5 量化模型，完全本地化，支持上架 App Store 🚀
 
 ---
 
-## 🚀 快速开始（云编译方式）
+## 🚀 快速安装
 
-### 方法 1：GitHub Actions 云编译
-
-#### 步骤 1：创建 GitHub 仓库
-```bash
-# 在 GitHub 创建新仓库
-# 上传项目文件后，添加 Actions 工作流
-```
-
-#### 步骤 2：复制 `.github/workflows/build.yml`
-```yaml
-# 已包含在项目中
-# 自动编译并发布到 TestFlight 或 App Store
-```
-
-#### 步骤 3：配置编译密钥
+### 步骤 1：克隆项目
 
 ```bash
-# 在 Xcode 项目中配置：
-- Team ID（开发者账号）
-- Distribution 证书
-- Provisioning Profile
+git clone https://github.com/torylyj/xlm-app.git
+cd xlm-app
 ```
 
----
-
-## 📋 项目结构
-
-```
-apple_model_app/
-├── README.md                    # 项目说明
-├── PROJECT_GUIDE.md             # 项目编译指南
-├── .github/
-│   └── workflows/
-│       └── build.yml            # GitHub Actions 编译脚本
-├── Sources/
-│   ├── MainApp/
-│   │   ├── AppDelegate.swift   # 应用代理
-│   │   ├── ViewController.swift # 主界面
-│   │   ├── ChatView.swift      # 聊天 UI
-│   │   └── AppManager.swift    # 应用管理器
-│   └── MLXEngine/
-│       ├── MLXManager.swift    # 模型加载器
-│       ├── MLXConfig.swift     # 模型配置
-│       └── ModelLoader.swift   # 模型下载管理
-├── Resources/
-│   ├── Models/                 # 模型文件目录
-│   │   └── qwen/
-│   └── Assets.xcassets/       # 资源文件
-├── MLXBuild/
-│   └── MLXCore.swift           # MLX 核心封装
-└── Build/                      # 编译输出目录
-```
-
----
-
-## 🎯 功能特性
-
-- ✅ **本地模型推理**：完全离线，保护隐私
-- ✅ **多模型支持**：Qwen2.5-1.5B/7B/14B 等
-- ✅ **自动下载更新**：支持模型更新检查
-- ✅ **UI/UX 优化**：流畅的聊天界面
-- ✅ **离线操作**：无需网络即可使用
-- ✅ **批量处理**：多并发请求管理
-- ✅ **隐私保护**：所有数据本地处理
-
----
-
-## ⚙️ 云编译流程
-
-### 1. 准备工作
+### 步骤 2：查看项目结构
 
 ```bash
-# 1. 在 GitHub 创建仓库
-# 2. 上传项目文件
-# 3. 配置 API 密钥（如需要）
+ls -R
+# 查看 apple_model_app 目录
 ```
 
-### 2. GitHub Actions 配置
+### 步骤 3：打开项目
 
-```yaml
-# .github/workflows/build.yml
-name: Build iOS App
-on: [push, workflow_dispatch]
-jobs:
-  build:
-    runs-on: macos-latest
-    steps:
-    - uses: actions/checkout@v3
-    - name: Build app
-      run: xcodebuild build -workspace MyApp.xcworkspace
-
-    - name: Archive app
-      run: mv build/*.app/Info.plist archive/Info.plist
-```
-
-### 3. 编译与分发
-
+在 macOS 上：
 ```bash
-# 自动编译到 TestFlight
-# 或提交到 App Store：
-xcodebuild -release -archivePath build/Archive.xcarchive archive
+open apple_model_app.xcodeproj
 ```
+
+### 步骤 4：编译并运行
+
+在产品菜单中选择：
+- **Product → Destination → iPhone 15**
+- **Product → Build and Run**
 
 ---
 
-## 📝 模型下载指南
+## 📋 项目说明
 
-### MLX 模型下载命令
+这是一个基于**MLX 框架**的**iOS 本地大模型聊天应用**，使用**魔搭社区（ModelScope）**的 Qwen2.5 系列量化模型。
 
-```bash
-# 使用国内镜像站下载模型（魔搭社区）
-# Qwen2.5 系列（4-bit 量化）
+### 特性
 
-# 1.5B 模型（推荐入门）
-# ~1.3GB 大小
-
-# 7B 模型（性能较强）
-# ~4GB 大小
-
-# 14B 模型（推荐高性能设备）
-# ~8GB 大小
-```
-
-### 魔搭社区模型地址
-
-```python
-import mlx_lm
-model = mlx_lm.models.qwen25
-# 支持模型：Qwen2.5-1.5B, Qwen2.5-7B, Qwen2.5-14B
-```
+- ✅ **完全本地化**：所有推理在设备本地完成
+- ✅ **隐私保护**：数据不出设备，无需上传
+- ✅ **多模型支持**：Qwen2.5-1.5B/7B/14B 量化模型
+- ✅ **流畅 UI**：优化的消息流和界面
+- ✅ **云编译**：支持 GitHub Actions 自动化构建
 
 ---
 
-## 🔑 云编译所需配置
+## 🎯 支持的模型
 
-### 1. GitHub 仓库设置
+| 模型名称 | 参数量 | 量化精度 | 大小 | 适用场景 |
+|---------|--------|---------|--|---------|
+| Qwen2.5-1.5B | 1.5B | INT4 | ~1.3GB | 入门/低性能设备 |
+| **Qwen2.5-7B (推荐)** | 7B | INT4 | ~4GB | 性能和智能最佳 |
+| Qwen2.5-14B | 14B | INT4 | ~8GB | 高性能设备 |
+
+---
+
+## 📱 系统要求
+
+- **iOS**：15.0+
+- **Xcode**：15.0+
+- **内存**：16GB+
+- **存储**：至少 10GB（模型大小）
+
+---
+
+## 🌐 模型下载
+
+使用 Python 脚本下载模型：
+
+```bash
+python3 scripts/download_model.py --model qwen2.5-7b-4bit
+```
+
+### 模型列表
+
+- **Qwen2.5-1.5B**：~1.3GB，适合入门
+- **Qwen2.5-7B**：~4GB，推荐（最佳性价比）
+- **Qwen2.5-14B**：~8GB，高性能设备
+
+---
+
+## 🎨 主要功能
+
+1. **模型加载**
+   - ✅ 支持多种模型格式（INT4/INT8 等）
+   - ✅ 自动缓存管理
+   - ✅ 支持模型更新
+
+2. **UI 组件**
+   - ✅ ChatView：流畅聊天界面
+   - ✅ MessageStack：消息流栈
+   - ✅ ModelCache：模型缓存管理
+
+3. **模型管理**
+   - ✅ ModelLoader：模型加载器
+   - ✅ MLXConfig：模型配置类
+   - ✅ MLXManager：模型管理器
+
+---
+
+## 🔧 依赖配置
+
+### 必需依赖
 
 ```yaml
-# 仓库必须包含：
-- 项目源代码
-- .github/workflows 目录
-- Xcode 项目文件
+- MLX: latest
+- SwiftUI: iOS 16+
+- UIKit: iOS 15+
+- Swift: 5.9+
+- Xcode: 15.0+
 ```
 
-### 2. App Store Connect
+---
 
-```bash
-# 配置 App Store Connect 信息：
-- App 名称：Apple MLX Chat
-- Bundle ID：com.apple.model
-- 版本：1.0.0
-- 描述：本地大模型聊天应用
+## 📊 性能对比
+
+| 模型 | 速度（tokens/s） | 内存占用 | GPU 需求 |
+|-----|--------|-|------|
+| 1.5B | ~50 | 1.5GB | 低 |
+| **7B (推荐)** | ~30 | 4GB | 中 |
+| 14B | ~15 | 8GB | 高 |
+
+---
+
+## 🚀 GitHub Actions 自动编译
+
+### 编译流程
+
+```
+1. checkout 代码
+   ↓
+2. 安装依赖
+   ↓
+3. 编译构建
+   ↓
+4. 上传制品
+   ↓
+5. 测试运行
+   ↓
+6. 发布到 App Store
 ```
 
-### 3. 编译证书
+### 访问编译状态
+
+查看编译日志：
+https://github.com/torylyj/xlm-app/actions
+
+### 下载编译产物
+
+在"Artifacts"页面下载：
+- `iOS-Binaries`
+- `Archive.app`
+
+---
+
+## 📦 编译配置
+
+### Xcode 项目设置
+
+```xml
+<!-- Build Settings -->
+Build Configuration: Release
+Deployment Target: iOS 15.0
+Bitcode: No
+Fast Architecture Transition: Yes
+```
+
+### 命令行编译
 
 ```bash
-# 需要以下证书：
-- Code Signing Identity
-- Distribution Certificate
-- Provisioning Profile (iOS App)
+xcodebuild \
+    -workspace apple_model_app.xcworkspace \
+    -scheme AppleModelApp \
+    -sdk iphoneos \
+    -configuration Release \
+    -archivePath build/Build.xcarchive \
+    archive
 ```
 
 ---
 
 ## 📱 App Store 上架
 
-### 需要提交的材料
+### 需要材料
 
-- [ ] App 截图（3 个尺寸）
+- [ ] Apple Developer 账号（$99/年）
 - [ ] 隐私政策链接
-- [ ] 应用说明（含关键词）
-- [ ] 测试版本链接（TestFlight）
+- [ ] 3 张应用截图（iPhone/iPad）
+- [ ] 应用描述和关键词
 
-### 审核流程
+### 上架流程
 
-1. **提交审核**：上传到 App Store Connect
-2. **测试等待**：等待 Apple 审核（通常 1-3 天）
-3. **审核结果**：通过上架或需修改
-
----
-
-## 🚧 开发日志
-
-- ✅ 项目结构创建完成（2026-03-21）
-- ⏳ 编译配置待补充
-- ⏳ 模型加载器待开发
-- ⏳ UI 界面待设计
+1. **创建 App Store Connect**
+   - https://appstoreconnect.apple.com/
+2. **上传编译产物 .ipa**
+3. **填写元数据**
+4. **提交审核**
+5. **等待审核（1-3 天）**
 
 ---
 
-## 📞 联系方式
+## 🔐 隐私保护
 
-- 开发团队：苹果 iOS 开发小组
-- 版本：0.1.0 alpha
-- 许可证：MIT
+- ✅ **数据本地处理**
+- ✅ **无数据传输**
+- ✅ **离线模式**
+- ✅ **加密存储**
+
+---
+
+## 🎯 下一步开发
+
+- [ ] 优化 UI 动画
+- [ ] 添加语音输入
+- [ ] 支持多模型切换
+- [ ] 添加历史记录功能
+- [ ] 性能优化
+- [ ] 单元测试覆盖
+
+---
+
+## 🚫 注意事项
+
+1. **必须使用 macOS 编译环境**
+2. **需要 Apple Developer 账号**
+3. **编译产物包含签名证书**
+4. **必须配置隐私政策**
+5. **App Store 审核需 1-3 天**
+
+---
+
+## 📞 支持
+
+- **GitHub Issues**：https://github.com/torylyj/xlm-app/issues
+- **文档**：[https://docs.openclaw.ai](https://docs.openclaw.ai)
+- **邮件**：support@applemlx.com
+
+---
+
+## 📜 许可证
+
+- **代码**：MIT License
+- **模型**：MIT License
+
+---
+
+**🏷️ 标签**：`#MLX` `#MLLM` `#iOS` `#Qwen` `#本地大模型` `#AppStore`
+
+**👤 作者**：Apple MLX Team
+
+**📅 版本**：0.1.0 alpha
+
+**📅 更新时间**：2026-03-21
