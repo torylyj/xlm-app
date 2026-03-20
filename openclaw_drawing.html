@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数位板绘图工具</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: '微软雅黑', sans-serif;
+        }
+        
+        .toolbar {
+            background: #fff;
+            padding: 15px;
+            border-bottom: 1px solid #ccc;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        canvas {
+            background: white;
+            cursor: crosshair;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+            border: 2px solid #333;
+        }
+        
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        button.primary {
+            background: #007bff;
+            color: white;
+        }
+        
+        button.danger {
+            background: #dc3545;
+            color: white;
+        }
+        
+        button.success {
+            background: #28a745;
+            color: white;
+        }
+        
+        input[type="color"] {
+            width: 50px;
+            height: 35px;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .file-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .size-control {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        #canvas {
+            width: 900px;
+            height: 600px;
+        }
+    </style>
+</head>
+<body>
+    <div class="toolbar">
+        <div class="file-controls">
+            <button class="primary" onclick="saveCanvas()">💾 保存</button>
+            <button class="success" onclick="newCanvas()">📝 新建</button>
+            <button class="danger" onclick="undo()">↩️ 撤销</button>
+        </div>
+        
+        <div class="size-control">
+            <label>笔触大小：<span id="brushSize">5</span></label>
+            <input type="range" min="1" max="50" value="5" id="brushSizeRange" onchange="updateBrushSize()">
+        </div>
+        
+        <div class="color-picker">
+            <label>颜色:</label>
+            <input type="color" id="colorPicker" value="#000000">
+        </div>
+        
+        <div>
+            <button onclick="clearCanvas()">🧹 清空</button>
+        </div>
+    </div>
+    
+    <canvas id="canvas" width="800" height="600"></canvas>
+    
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        let isDrawing = false;
+        let brushSize = 5;
+        let brushColor = '#000000';
+        let lineHistory = [];
+        let lineIndex = 0;
+        
+        // 初始化
+        function init() {
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            saveCanvas();
+            
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('mousemove', drawing);
+            canvas.addEventListener('mouseup', stopDrawing);
+            canvas.addEventListener('mouseout', stopDrawing);
+            
+            // 支持数位板触摸输入
+            canvas.addEventListener('touchstart', (e) => {
+                const touch = e.touches[0];
+                const rect = canvas.getBoundingClientRect();
+                startDrawing({
+                    offsetX: touch.clientX - rect.left,
+                    offsetY: touch.clientY - rect.top
+                });
+            });
+            
+            canvas.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+                const touch = e.touches[0];
+                const rect = canvas.getBoundingClientRect();
+                drawing({
+                    offsetX: touch.clientX - rect.left,
+                    offsetY: touch.clientY - rect.top
+                });
+            });
+            
+            canvas.addEventListener('touchend', stopDrawing);
+        }
+        
+        function startDrawing(e) {
+            isDrawing = true;
+            ctx.beginPath();
+            ctx.lineWidth = brushSize;
+            ctx.strokeStyle = brushColor;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            
+            const rect = canvas.getBoundingClientRect();
+            ctx.moveTo(e.offsetX, e.offsetY);
+        }
+        
+        function drawing(e) {
+            if (!isDrawing) return;
+            
+            ctx.lineTo(e.offsetX, e.offsetY);
+            ctx.stroke();
+            
+            // 保存历史记录
+            lineHistory.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
+            if (lineHistory.length > lineIndex - 1) {
+                lineHistory[lineIndex - 1] = lineHistory[lineHistory.length - 2];
+            }
+            if (lineHistory.length > 50) {
+                lineHistory.shift();
+            }
+        }
+        
+        function stopDrawing() {
+            if (isDrawing) {
+                isDrawing = false;
+                lineIndex++;
+            }
+        }
+        
+        function updateBrushSize() {
+            brushSize = parseInt(document.getElementById('brushSizeRange').value);
+            document.getElementById('brushSize').textContent = brushSize;
+        }
+        
+        function clearCanvas() {
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            saveCanvas();
+        }
+        
+        function undo() {
+            if (lineHistory.length > lineIndex + 1) {
+                lineIndex++;
+                ctx.putImageData(lineHistory[lineHistory.length - lineIndex - 1], 0, 0);
+            }
+        }
+        
+        function saveCanvas() {
+            const link = document.createElement('a');
+            link.download = '我的画作.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+        
+        function newCanvas() {
+            if (confirm('确定要新建画布吗？当前内容将丢失。')) {
+                clearCanvas();
+            }
+        }
+        
+        // 初始化
+        init();
+    </script>
+</body>
+</html>

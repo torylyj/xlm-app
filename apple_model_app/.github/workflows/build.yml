@@ -1,0 +1,64 @@
+# 🍎 Apple MLX Chat - GitHub Actions 编译配置
+# 用于云编译 iOS 应用到 TestFlight or App Store
+
+name: Build iOS App
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:  # 手动触发编译
+
+env:
+  ios: macos-latest
+  scheme: AppleModelApp
+  project: AppleModelApp.xcodeproj
+  configuration: Release
+  arch: arm64
+
+jobs:
+  build:
+    name: Build iOS App
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Set up Xcode
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: '>=15.0.0'
+    
+    - name: Install dependencies
+      run: |
+        sudo -E sudo apt-get update
+        sudo -E sudo apt-get install libc++-dev
+    
+    - name: Build archive
+      run: |
+        xcodebuild \
+          -workspace apple_model_app.xcworkspace \
+          -scheme AppleModelApp \
+          -configuration ${{env.configuration}} \
+          -archivePath build/AppleModelApp.xcarchive \
+          archive
+    
+    - name: Upload binaries
+      uses: actions/upload-artifact@v4
+      with:
+        name: iOS-Binaries
+        path: build/AppleModelApp.xcarchive
+    
+    - name: TestFlight upload
+      if: ${{ github.event_name == 'workflow_dispatch' }}
+      run: |
+        # Upload to TestFlight for beta testing
+        # Requires TestFlight certificate and bundle ID
+    
+    - name: Publish to App Store
+      if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' }}
+      run: |
+        # Submit to App Store Connect
+        # Manual approval required from Apple

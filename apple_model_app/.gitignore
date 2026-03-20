@@ -1,0 +1,33 @@
+# 编译产物
+build/
+Products/
+DerivedData/
+
+# .DS_Store
+.DS_Store
+
+# IDE 文件
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Xcode 项目文件
+*.pbxproj
+xcuserdata/
+
+# 模型文件（大文件）
+Resources/Models/*.zip
+Resources/Models/*.safetensors
+
+# 日志文件
+*.log
+
+# Python 缓存
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# macOS 扩展
+.AppleDouble/
+
